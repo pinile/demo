@@ -17,6 +17,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0")
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
@@ -29,7 +30,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
 
     implementation("ch.qos.logback:logback-classic:1.5.12")
-    implementation("ch.qos.logback:logback-core:1.5.12")
+    implementation("ch.qos.logback:logback-core:1.5.19")
 
     implementation("org.jdbi:jdbi3-core:3.49.6")
     implementation("org.jdbi:jdbi3-sqlobject:3.49.6")
