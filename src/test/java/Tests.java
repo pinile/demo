@@ -1,39 +1,49 @@
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.stepchenkov.api.ApiRepository;
 import ru.stepchenkov.api._base.students.payload.entity.StudentDto;
+import ru.stepchenkov.api._base.tags.payload.entity.TagDto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class Tests {
 
-    private StudentDto response;
+    private static StudentDto response;
 
-    @BeforeEach
-    void init() {
+    @BeforeAll
+    static void init() {
         // удалить все существующие записи
         List<StudentDto> existing = ApiRepository.studentsApi.getAllStudents();
         existing.stream()
                 .filter(s -> "fake@mail.com".equals(s.getEmail()))
                 .forEach(s -> ApiRepository.studentsApi.deleteStudentById(s.getId()));
 
+        // создать нового студента
         StudentDto dto = new StudentDto()
                 .setName("Piere Dun")
                 .setEmail("fake@mail.com")
                 .setTags(List.of("xxx")
                 );
         response = ApiRepository.studentsApi.createStudent(dto);
+
+        // проверить наличие тегов
+        List<TagDto> existingTags = ApiRepository.tagsApi.getAllTags();
+
+        if (existingTags.isEmpty()) {
+            for (String tagName : response.getTags()) {
+                TagDto tagDto = new TagDto().setName(tagName);
+                ApiRepository.tagsApi.addTag(tagDto);
+            }
+        }
     }
 
-    @AfterEach
-    void cleanup() {
+    @AfterAll
+    static void cleanup() {
         if (response != null && response.getId() != null) {
             try {
                 ApiRepository.studentsApi.deleteStudentById(response.getId());
@@ -72,5 +82,27 @@ public class Tests {
                 .containsExactly("Changed Name", response.getEmail(), List.of("tag1", "tag2"));
     }
 
+    @Test
+    @DisplayName("Получить все теги")
+    void checkGetAllTags() {
+        List<TagDto> allTags = ApiRepository.tagsApi.getAllTags();
+
+        assertThat(allTags)
+                .isNotNull()
+                .isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("Добавление тега")
+    void checkAddTag() {
+        TagDto dto = new TagDto().setName(UUID.randomUUID().toString());
+
+        log.error(dto.toString());
+
+        TagDto response = ApiRepository.tagsApi.addTag(dto);
+
+        assertThat(response.getName())
+                .isEqualTo(dto.getName());
+    }
 
 }

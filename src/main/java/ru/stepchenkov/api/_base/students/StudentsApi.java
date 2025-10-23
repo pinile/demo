@@ -62,7 +62,7 @@ public class StudentsApi extends _BaseApi {
     }
 
     public StudentDto updateStudent(StudentDto student, Map<String, Object> mapParams) {
-        log.info("Обновить студента с именем - {}", student.getName());
+        log.info("Обновить студента с id - {}", student.getId());
 
         Response response = jsonAutoAuth()
                 .basePath("/api/students/" + student.getId())
