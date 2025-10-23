@@ -8,6 +8,7 @@ import ru.stepchenkov.env.Env;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class StudentsApi extends _BaseApi {
@@ -25,6 +26,17 @@ public class StudentsApi extends _BaseApi {
 
         response.then().statusCode(200);
         return Arrays.asList(response.as(StudentDto[].class));
+    }
+
+    public StudentDto getStudentById(int id) {
+        log.info("Получить студента по id");
+
+        Response response = jsonAutoAuth()
+                .basePath("/api/students/" + id)
+                .get();
+
+        response.then().statusCode(200);
+        return response.as(StudentDto.class);
     }
 
     public void deleteStudentById(int id) {
@@ -49,6 +61,16 @@ public class StudentsApi extends _BaseApi {
         return response.as(StudentDto.class);
     }
 
+    public StudentDto updateStudent(StudentDto student, Map<String, Object> mapParams) {
+        log.info("Обновить студента с именем - {}", student.getName());
+
+        Response response = jsonAutoAuth()
+                .basePath("/api/students/" + student.getId())
+                .body(mapParams)
+                .put();
+
+        return response.as(StudentDto.class);
+    }
 }
 
 

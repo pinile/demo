@@ -1,4 +1,4 @@
-package ru.stepchenkov.api._base.students.payload.entity;
+package ru.stepchenkov.api._base.tags.payload.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,30 +8,17 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 @Accessors(chain = true)
-public class StudentDto {
+public class TagDto {
 
     @JsonProperty("id")
     private Integer id;
 
     @JsonProperty("name")
     private String name;
-
-    @JsonProperty("email")
-    private String email;
-
-    @JsonProperty("tags")
-    private List<String> tags = new ArrayList<>();
-
-    @JsonProperty("createdAt")
-    private OffsetDateTime createdAt;
 }
