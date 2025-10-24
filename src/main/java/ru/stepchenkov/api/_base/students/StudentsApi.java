@@ -2,7 +2,9 @@ package ru.stepchenkov.api._base.students;
 
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
+import ru.stepchenkov.api.ApiResponse;
 import ru.stepchenkov.api._base._BaseApi;
+import ru.stepchenkov.api._base.students.payload.entity.ErrorResponseStudentDto;
 import ru.stepchenkov.api._base.students.payload.entity.StudentDto;
 import ru.stepchenkov.env.Env;
 
@@ -28,28 +30,35 @@ public class StudentsApi extends _BaseApi {
         return Arrays.asList(response.as(StudentDto[].class));
     }
 
-    public StudentDto getStudentById(int id) {
+    public ApiResponse<StudentDto, ErrorResponseStudentDto> getStudentById(int id) {
         log.info("Получить студента по id");
 
         Response response = jsonAutoAuth()
                 .basePath("/api/students/" + id)
                 .get();
 
-        response.then().statusCode(200);
-        return response.as(StudentDto.class);
+        int statusCode = response.getStatusCode();
+
+        if (statusCode == 200) {
+            return new ApiResponse<>(statusCode, response.as(StudentDto.class), null);
+        } else return new ApiResponse<>(statusCode, null, response.as(ErrorResponseStudentDto.class));
     }
 
-    public void deleteStudentById(int id) {
+    public ApiResponse<StudentDto, ErrorResponseStudentDto> deleteStudentById(int id) {
         log.info("Удалить студента по id");
 
-        jsonAutoAuth()
+        Response response = jsonAutoAuth()
                 .basePath("/api/students/" + id)
-                .delete()
-                .then()
-                .statusCode(204);
+                .delete();
+
+        int statusCode = response.getStatusCode();
+
+        if (statusCode == 204) {
+            return new ApiResponse<>(statusCode, null, null);
+        } else return new ApiResponse<>(statusCode, null, response.as(ErrorResponseStudentDto.class));
     }
 
-    public StudentDto createStudent(StudentDto student) {
+    public ApiResponse<StudentDto, ErrorResponseStudentDto> createStudent(StudentDto student) {
         log.info("Создать студента с именем - {}", student.getName());
 
         Response response = jsonAutoAuth()
@@ -57,11 +66,14 @@ public class StudentsApi extends _BaseApi {
                 .body(student)
                 .post();
 
-        response.then().statusCode(201);
-        return response.as(StudentDto.class);
+        int statusCode = response.getStatusCode();
+
+        if (statusCode == 201) {
+            return new ApiResponse<>(statusCode, response.as(StudentDto.class), null);
+        } else return new ApiResponse<>(statusCode, null, response.as(ErrorResponseStudentDto.class));
     }
 
-    public StudentDto updateStudent(StudentDto student, Map<String, Object> mapParams) {
+    public ApiResponse<StudentDto, ErrorResponseStudentDto> updateStudent(StudentDto student, Map<String, Object> mapParams) {
         log.info("Обновить студента с id - {}", student.getId());
 
         Response response = jsonAutoAuth()
@@ -69,7 +81,11 @@ public class StudentsApi extends _BaseApi {
                 .body(mapParams)
                 .put();
 
-        return response.as(StudentDto.class);
+        int statusCode = response.getStatusCode();
+
+        if (statusCode == 200) {
+            return new ApiResponse<>(statusCode, response.as(StudentDto.class), null);
+        } else return new ApiResponse<>(statusCode, null, response.as(ErrorResponseStudentDto.class));
     }
 }
 
