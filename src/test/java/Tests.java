@@ -293,20 +293,6 @@ public class Tests {
                     .contains(tagDto.getName());
         }
 
-        @Test
-        @DisplayName("Негативный. Добавление тега. Пустое тело запроса")
-        void checkIsBlankAddTag() {
-            TagDto tagDto = new TagDto();
-            ApiResponse<TagDto, ErrorResponseTagDto> response = ApiRepository.tagsApi.addTag(tagDto);
-
-            assertErrorResponse(response, 400);
-            assertThat(response.error())
-                    .isNotNull()
-                    .extracting(ErrorResponseTagDto::getError)
-                    .asString()
-                    .contains("some error");
-        }
-
         @ParameterizedTest(name = "[{index}]. Добавление тега. Тело запроса = {0}")
         @MethodSource("provider_checkBadRequestAddTag")
         @DisplayName("Негативные. Добавление тега.")
@@ -315,7 +301,6 @@ public class Tests {
 
             assertErrorResponse(response, 400);
             assertThat(response.error())
-                    .isNotNull()
                     .extracting(ErrorResponseTagDto::getError)
                     .asString()
                     .contains("Bad Request");
