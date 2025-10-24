@@ -76,6 +76,48 @@ public class Tests {
     @Nested
     @DisplayName("Тесты для студентов")
     class StudentTests {
+        private static Stream<Map<String, Object>> provider_checkBadRequestUpdateStudent() {
+            return Stream.of(
+                    Map.of("name", 123),
+                    Map.of("name", List.of("invalid", "array")),
+                    Map.of("name", Map.of("invalid", "object")),
+                    Map.of("email", "email.ru"),
+                    Map.of("email", List.of("invalid", "array")),
+                    Map.of("email", 123),
+                    Map.of("tags", List.of("tag1", "tag2"))
+            );
+        }
+
+        private static Stream<Map<String, Object>> provider_checkValidUpdateStudent() {
+            return Stream.of(
+                    Map.of("name", "Valid Case",
+                            "email", "valid@mail.ru",
+                            "tags", List.of("tag1", "tag2")),
+
+                    Map.of("email", "valid@mail.ru",
+                            "tags", List.of("tag1", "tag2")),
+                    Map.of("name", "Valid Case",
+                            "tags", List.of("tag1", "tag2")),
+                    Map.of("name", "Valid Case",
+                            "email", "valid@mail.ru"),
+
+                    Map.of("name", "Valid Case"),
+                    Map.of("email", "valid@mail.ru"),
+                    Map.of("tags", List.of("tag1", "tag2"))
+            );
+        }
+
+        private static Stream<Map<String, Object>> provider_checkValidCreateStudent() {
+            return Stream.of(
+                    Map.of("name", "Valid Case",
+                            "email", "valid@mail.ru",
+                            "tags", List.of("tag1", "tag2")),
+
+                    Map.of("name", "Valid Case",
+                            "email", "valid@mail.ru")
+            );
+        }
+
         @Test
         @DisplayName("Позитивные. Получение информации о студенте по id")
         void checkGetStudentById() {
@@ -205,48 +247,6 @@ public class Tests {
                     .extracting(ErrorResponseStudentDto::getTitle)
                     .asString()
                     .contains("Студент не найден");
-        }
-
-        private static Stream<Map<String, Object>> provider_checkBadRequestUpdateStudent() {
-            return Stream.of(
-                    Map.of("name", 123),
-                    Map.of("name", List.of("invalid", "array")),
-                    Map.of("name", Map.of("invalid", "object")),
-                    Map.of("email", "email.ru"),
-                    Map.of("email", List.of("invalid", "array")),
-                    Map.of("email", 123),
-                    Map.of("tags", List.of("tag1", "tag2"))
-            );
-        }
-
-        private static Stream<Map<String, Object>> provider_checkValidUpdateStudent() {
-            return Stream.of(
-                    Map.of("name", "Valid Case",
-                            "email", "valid@mail.ru",
-                            "tags", List.of("tag1", "tag2")),
-
-                    Map.of("email", "valid@mail.ru",
-                            "tags", List.of("tag1", "tag2")),
-                    Map.of("name", "Valid Case",
-                            "tags", List.of("tag1", "tag2")),
-                    Map.of("name", "Valid Case",
-                            "email", "valid@mail.ru"),
-
-                    Map.of("name", "Valid Case"),
-                    Map.of("email", "valid@mail.ru"),
-                    Map.of("tags", List.of("tag1", "tag2"))
-            );
-        }
-
-        private static Stream<Map<String, Object>> provider_checkValidCreateStudent() {
-            return Stream.of(
-                    Map.of("name", "Valid Case",
-                            "email", "valid@mail.ru",
-                            "tags", List.of("tag1", "tag2")),
-
-                    Map.of("name", "Valid Case",
-                            "email", "valid@mail.ru")
-            );
         }
     }
 
