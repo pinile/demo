@@ -1,4 +1,5 @@
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,22 +16,15 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Slf4j
 @DisplayName("API Тесты")
+@SuppressWarnings("all")
 public class Tests {
 
     private static ApiResponse<StudentDto, ErrorResponseStudentDto> prepareResponse;
 
     @BeforeEach
     void init() {
-        // удалить все существующие записи
-        List<StudentDto> existing = ApiRepository.studentsApi.getAllStudents();
-        existing.stream()
-                .filter(s -> "fake@mail.com".equals(s.getEmail()))
-                .forEach(s -> ApiRepository.studentsApi.deleteStudentById(s.getId()));
-
         // создать нового студента
         StudentDto dto = new StudentDto()
                 .setName("Piere Dun")
@@ -62,15 +56,15 @@ public class Tests {
     }
 
     private void assertSuccessResponse(ApiResponse<?, ?> response) {
-        assertThat(response.data()).isNotNull();
-        assertThat(response.status()).isIn(200, 201, 204);
-        assertThat(response.error()).isNull();
+        Assertions.assertThat(response.data()).isNotNull();
+        Assertions.assertThat(response.status()).isIn(200, 201, 204);
+        Assertions.assertThat(response.error()).isNull();
     }
 
     private void assertErrorResponse(ApiResponse<?, ?> response, int expectedStatus) {
-        assertThat(response.status()).isEqualTo(expectedStatus);
-        assertThat(response.data()).isNull();
-        assertThat(response.error()).isNotNull();
+        Assertions.assertThat(response.status()).isEqualTo(expectedStatus);
+        Assertions.assertThat(response.data()).isNull();
+        Assertions.assertThat(response.error()).isNotNull();
     }
 
     @Nested
@@ -124,7 +118,7 @@ public class Tests {
             ApiResponse<StudentDto, ?> dto = ApiRepository.studentsApi.getStudentById(prepareResponse.data().getId());
 
             assertSuccessResponse(dto);
-            assertThat(dto.data())
+            Assertions.assertThat(dto.data())
                     .usingRecursiveComparison()
                     .ignoringFields("createdAt")
                     .isEqualTo(prepareResponse.data());
@@ -137,7 +131,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> response = ApiRepository.studentsApi.getStudentById(randomId);
 
             assertErrorResponse(response, 404);
-            assertThat(response.error())
+            Assertions.assertThat(response.error())
                     .extracting(ErrorResponseStudentDto::getTitle)
                     .asString()
                     .contains("Студент не найден");
@@ -172,7 +166,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> responseDto = ApiRepository.studentsApi.updateStudent(dto.data(), mapParams);
 
             assertSuccessResponse(responseDto);
-            assertThat(responseDto.data())
+            Assertions.assertThat(responseDto.data())
                     .extracting(StudentDto::getName, StudentDto::getEmail, StudentDto::getTags)
                     .containsExactly("Changed Name", prepareResponse.data().getEmail(), List.of("tag1", "tag2"));
         }
@@ -185,7 +179,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> responseDto = ApiRepository.studentsApi.updateStudent(dto.data(), mapParams);
 
             assertSuccessResponse(responseDto);
-            assertThat(responseDto.data())
+            Assertions.assertThat(responseDto.data())
                     .extracting(StudentDto::getName, StudentDto::getEmail, StudentDto::getTags)
                     .containsExactly(mapParams.get("name"),
                             mapParams.get("email"),
@@ -201,7 +195,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> responseDto = ApiRepository.studentsApi.updateStudent(dto.data(), mapParams);
 
             assertErrorResponse(responseDto, 400);
-            assertThat(responseDto.error())
+            Assertions.assertThat(responseDto.error())
                     .extracting(ErrorResponseStudentDto::getDetail)
                     .asString()
                     .contains("не должно быть пустым");
@@ -230,7 +224,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> responseDto = ApiRepository.studentsApi.updateStudent(dto.data(), mapParams);
 
             assertErrorResponse(responseDto, 404);
-            assertThat(responseDto.error())
+            Assertions.assertThat(responseDto.error())
                     .extracting(ErrorResponseStudentDto::getTitle)
                     .asString()
                     .contains("Студент не найден");
@@ -243,7 +237,7 @@ public class Tests {
             ApiResponse<StudentDto, ErrorResponseStudentDto> response = ApiRepository.studentsApi.deleteStudentById(randomId);
 
             assertErrorResponse(response, 404);
-            assertThat(response.error())
+            Assertions.assertThat(response.error())
                     .extracting(ErrorResponseStudentDto::getTitle)
                     .asString()
                     .contains("Студент не найден");
@@ -269,7 +263,7 @@ public class Tests {
         void checkGetAllTags() {
             List<TagDto> allTags = ApiRepository.tagsApi.getAllTags();
 
-            assertThat(allTags)
+            Assertions.assertThat(allTags)
                     .isNotNull()
                     .isNotEmpty();
         }
@@ -281,14 +275,14 @@ public class Tests {
             ApiResponse<TagDto, ErrorResponseTagDto> response = ApiRepository.tagsApi.addTag(tagDto);
 
             assertSuccessResponse(response);
-            assertThat(response.data())
+            Assertions.assertThat(response.data())
                     .isNotNull()
                     .extracting(TagDto::getName)
                     .isEqualTo(tagDto.getName());
 
             List<TagDto> tagList = ApiRepository.tagsApi.getAllTags();
 
-            assertThat(tagList)
+            Assertions.assertThat(tagList)
                     .extracting(TagDto::getName)
                     .contains(tagDto.getName());
         }
@@ -300,7 +294,7 @@ public class Tests {
             ApiResponse<TagDto, ErrorResponseTagDto> response = ApiRepository.tagsApi.addTag(invalidBody);
 
             assertErrorResponse(response, 400);
-            assertThat(response.error())
+            Assertions.assertThat(response.error())
                     .extracting(ErrorResponseTagDto::getError)
                     .asString()
                     .contains("Bad Request");
