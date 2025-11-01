@@ -9,6 +9,8 @@ import ru.stepchenkov.api._base.students.payload.entity.ErrorResponseStudentDto;
 import ru.stepchenkov.api._base.students.payload.entity.StudentDto;
 import ru.stepchenkov.api._base.tags.payload.entity.ErrorResponseTagDto;
 import ru.stepchenkov.api._base.tags.payload.entity.TagDto;
+import ru.stepchenkov.db.DaoRepository;
+import ru.stepchenkov.db.dao.students.entity.StudentEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,6 @@ import java.util.stream.Stream;
 
 @Slf4j
 @DisplayName("API Тесты")
-@SuppressWarnings("all")
 public class Tests {
 
     private static ApiResponse<StudentDto, ErrorResponseStudentDto> prepareResponse;
@@ -56,7 +57,7 @@ public class Tests {
     }
 
     private void assertSuccessResponse(ApiResponse<?, ?> response) {
-        Assertions.assertThat(response.data()).isNotNull();
+        Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.status()).isIn(200, 201, 204);
         Assertions.assertThat(response.error()).isNull();
     }
@@ -122,6 +123,16 @@ public class Tests {
                     .usingRecursiveComparison()
                     .ignoringFields("createdAt")
                     .isEqualTo(prepareResponse.data());
+
+            // Проверка в БД
+            StudentEntity dbStudent = DaoRepository.studentsDao.findStudentById(dto.data().getId());
+
+//            log.info("DB entity: " + dbStudent.toString());
+//            log.info("API Dto: " + dto.data());
+            Assertions.assertThat(dbStudent)
+                    .isNotNull()
+                    .extracting(StudentEntity::getName, StudentEntity::getEmail)
+                    .contains(dto.data().getName(), dto.data().getEmail());
         }
 
         @Test

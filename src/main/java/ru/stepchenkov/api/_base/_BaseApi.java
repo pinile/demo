@@ -2,10 +2,10 @@ package ru.stepchenkov.api._base;
 
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.filter.log.ErrorLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +32,17 @@ public class _BaseApi {
 
     private RestAssuredConfig createConfig() {
         return RestAssured.config()
+                .logConfig(LogConfig.logConfig()
+                        .enableLoggingOfRequestAndResponseIfValidationFails())
                 .httpClient(HttpClientConfig.httpClientConfig()
                         .setParam("http.connection.timeout", 5000));
     }
 
     private List<Filter> getFilters() {
         return List.of(
-                new RequestLoggingFilter(),
-                new ResponseLoggingFilter()
+//                new RequestLoggingFilter(),
+//                new ResponseLoggingFilter(),
+                new ErrorLoggingFilter()
         );
     }
 }
